@@ -12,7 +12,7 @@ FPS = 60
 SCREEN_WIDTH, SCREEN_HEIGHT = 900, 600
 
 DRONE_RADIUS = 15
-DRONE_SPEED = 2
+DRONE_MAX_SPEED = 3
 
 PERSPECTIVE_DIVIDER = 1.5
 
@@ -34,6 +34,9 @@ def step_twords(val, target, step=1):
     elif val > target:
         return val - step
 
+def clamp(val, minmax):
+    return max(min(val, minmax), -minmax)
+
 class Radio:
     def __init__(self, on_message):
         self.on_message = on_message
@@ -51,9 +54,9 @@ class Drone:
             random.randrange(80, 250),
             random.randrange(80, 250)
         )
-        self.target_x = x
-        self.target_y = y
-        self.target_z = 100
+        self.x_accel = 0
+        self.y_accel = 0
+        self.z_accel = 0
         self.label = 'HI'
         self.counter = random.randrange(FPS)
         self.draw_shadow_line = False
@@ -64,7 +67,7 @@ class Drone:
         pygame.draw.circle(
             screen,
             self.color,
-            (self.x, int(self.y - self.z + hover_offset)),
+            (int(self.x), int(self.y - self.z + hover_offset)),
             DRONE_RADIUS
         )
         font_w, font_h = FONT.size(str(self.label))
@@ -82,13 +85,13 @@ class Drone:
             pygame.draw.line(
                 screen,
                 SHADOW_COLOR,
-                (self.x, self.y),
-                (self.x, self.y - self.z),
+                (int(self.x), int(self.y)),
+                (int(self.x), int(self.y - self.z)),
             )
         pygame.draw.circle(
             screen,
             SHADOW_COLOR,
-            (self.x, self.y),
+            (int(self.x), int(self.y)),
             DRONE_RADIUS - min(int(self.z / 30), DRONE_RADIUS / 2)
         )
 
@@ -99,17 +102,17 @@ class Drone:
             self.counter -= FPS
 
         # move towards the target
-        self.x = step_twords(self.x, self.target_x, DRONE_SPEED)
-        self.y = step_twords(self.y, self.target_y, DRONE_SPEED)
-        self.z = step_twords(self.z, self.target_z, DRONE_SPEED)
+        self.x += clamp(0.0 + self.x_accel, 1.0) * DRONE_MAX_SPEED
+        self.y += clamp(0.0 + self.y_accel, 1.0) * DRONE_MAX_SPEED
+        self.z += clamp(0.0 + self.z_accel, 1.0) * DRONE_MAX_SPEED
 
         # don't go off screen or below the ground
-        if self.x < 10                  : self.x = 10
-        elif self.x > SCREEN_WIDTH - 10 : self.x = SCREEN_WIDTH - 10
-        if self.y < 10                  : self.y = 10
-        elif self.y > SCREEN_WIDTH - 10 : self.y = SCREEN_WIDTH - 10
-        if self.z > 500                 : self.z = 500
-        elif self.z < 10                : self.z = 10
+        if self.x < 10                   : self.x = 10
+        elif self.x > SCREEN_WIDTH - 10  : self.x = SCREEN_WIDTH - 10
+        if self.y < 10                   : self.y = 10
+        elif self.y > SCREEN_HEIGHT - 10 : self.y = SCREEN_HEIGHT - 10
+        if self.z > 500                  : self.z = 500
+        elif self.z < 10                 : self.z = 10
         self.user_update()
 
     def user_init(self):

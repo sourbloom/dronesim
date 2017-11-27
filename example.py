@@ -13,15 +13,15 @@ class AlyDrone(dronesim.Drone):
         pass
 
     def user_update(self):
-        self.label = self.z
+        self.label = int(self.z)
 
     def user_every_second(self):
-        self.target_x += random.randrange(-50, 50)
-        self.target_y += random.randrange(-50, 50)
-        self.target_z = random.randrange(50, 300)
+        self.x_accel = random.random() * 2 - 1
+        self.y_accel = random.random() * 2 - 1
+        self.z_accel = random.random() * 2 - 1
 
 drones = []
-for i in range(20):
+for i in range(10):
     drones.append(
         AlyDrone(
             random.randrange(200, 500),
