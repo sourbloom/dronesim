@@ -7,25 +7,66 @@
 import dronesim
 import random
 
-class AlyDrone(dronesim.Drone):
-    def user_init(self):
-        # self.draw_shadow_line = True
+class RadioDrone(dronesim.Drone):
+    def send(self):
+        for d in drones:
+            if d != self:
+                d.receive(dronesim.drone_distance(self, d))
+
+    def receive(self, distance):
         pass
 
+class SendDrone(RadioDrone):
+    def user_init(self):
+        self.label = 'BEACON'
+        self.delay = 0
+
     def user_update(self):
-        self.label = int(self.z)
+        if self.label == ':O':
+            self.delay += 1
+            if self.delay >= 15:
+                self.delay = 0
+                self.label = ':|'
 
     def user_every_second(self):
-        self.x_accel = random.random() * 2 - 1
-        self.y_accel = random.random() * 2 - 1
-        self.z_accel = random.random() * 2 - 1
+        self.send()
+        self.label = ':O'
+
+class ListenDrone(RadioDrone):
+    def user_init(self):
+        self.label = '?'
+        self.last_dist = 9999
+
+    def receive(self, distance):
+        self.last_dist = distance
+        if distance <= 70:
+            self.x_accel = 0
+            self.y_accel = 0
+            self.z_accel = 0
+            self.label = ':)'
+        else:
+            self.label = int(distance)
+            if distance >= self.last_dist:
+                self.x_accel = (random.random() * 2 - 1) * 0.3
+                self.y_accel = (random.random() * 2 - 1) * 0.3
+                self.z_accel = (random.random() * 2 - 1) * 0.3
 
 drones = []
-for i in range(10):
+
+drones.append(
+    SendDrone(
+        dronesim.SCREEN_WIDTH / 2,
+        dronesim.SCREEN_HEIGHT / 2,
+        100
+    )
+)
+
+for i in range(12):
     drones.append(
-        AlyDrone(
-            random.randrange(200, 500),
-            random.randrange(200, 500)
+        ListenDrone(
+            random.randrange(0, dronesim.SCREEN_WIDTH),
+            random.randrange(0, dronesim.SCREEN_HEIGHT),
+            100
         )
     )
 

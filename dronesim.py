@@ -37,6 +37,24 @@ def step_twords(val, target, step=1):
 def clamp(val, minmax):
     return max(min(val, minmax), -minmax)
 
+def draw_line(d1, d2):
+    pygame.draw.line(
+        screen,
+        SHADOW_COLOR,
+        (int(d1.x), int(d1.y + d1.z)),
+        (int(self.x), int(self.y - self.z)),
+    )
+    pygame.display.update()
+
+def draw_circle(d, r):
+    pygame.draw.circle(
+        screen,
+        SHADOW_COLOR,
+        (int(self.x), int(self.y)),
+        DRONE_RADIUS - min(int(self.z / 30), DRONE_RADIUS / 2)
+    )
+    pygame.display.update()
+
 class Radio:
     def __init__(self, on_message):
         self.on_message = on_message
@@ -45,10 +63,10 @@ class Radio:
         pass
 
 class Drone:
-    def __init__(self, x, y):
+    def __init__(self, x, y, z):
         self.x = x
         self.y = y
-        self.z = 0
+        self.z = z
         self.color = (
             random.randrange(80, 250),
             random.randrange(80, 250),
@@ -63,7 +81,7 @@ class Drone:
         self.user_init()
 
     def draw_drone(self):
-        hover_offset = (math.sin(pygame.time.get_ticks() / 200.0) * 10) - 10
+        hover_offset = (math.sin(pygame.time.get_ticks() / 200.0) * 5) - 5
         pygame.draw.circle(
             screen,
             self.color,
