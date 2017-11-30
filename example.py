@@ -38,7 +38,6 @@ class ListenDrone(RadioDrone):
         self.last_dist = 9999
 
     def receive(self, distance):
-        self.last_dist = distance
         if distance <= 70:
             self.x_accel = 0
             self.y_accel = 0
@@ -50,6 +49,7 @@ class ListenDrone(RadioDrone):
                 self.x_accel = (random.random() * 2 - 1) * 0.3
                 self.y_accel = (random.random() * 2 - 1) * 0.3
                 self.z_accel = (random.random() * 2 - 1) * 0.3
+        self.last_dist = distance
 
 drones = []
 

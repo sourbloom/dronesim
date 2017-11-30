@@ -21,7 +21,7 @@ SHADOW_COLOR = (10/2,100/2,20/2)
 LINE_COLOR = (10,100,20)
 
 def distance(x1, y1, z1, x2, y2, z2):
-    return math.sqrt((x2-x1)**2 + (y2-y1)**2 + (z2-z1)**2)
+    return math.sqrt((x2-x1)**2.0 + (y2-y1)**2.0 + (z2-z1)**2.0)
 
 def drone_distance(d1, d2):
     return distance(d1.x, d1.y, d1.z, d2.x, d2.y, d2.z)
