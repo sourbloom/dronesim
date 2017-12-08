@@ -7,14 +7,16 @@
 import dronesim
 import random
 
-class RadioDrone(dronesim.Drone):
+
+class RadioDrone(dronesim.drone.Drone):
     def send(self):
         for d in drones:
             if d != self:
-                d.receive(dronesim.drone_distance(self, d))
+                d.receive(dronesim.util.drone_distance(self, d))
 
     def receive(self, distance):
         pass
+
 
 class SendDrone(RadioDrone):
     def user_init(self):
@@ -31,6 +33,7 @@ class SendDrone(RadioDrone):
     def user_every_second(self):
         self.send()
         self.label = ':O'
+
 
 class ListenDrone(RadioDrone):
     def user_init(self):
@@ -51,23 +54,26 @@ class ListenDrone(RadioDrone):
                 self.z_accel = (random.random() * 2 - 1) * 0.3
         self.last_dist = distance
 
-drones = []
 
-drones.append(
-    SendDrone(
-        dronesim.SCREEN_WIDTH / 2,
-        dronesim.SCREEN_HEIGHT / 2,
-        100
-    )
-)
+if __name__ == "__main__":
+    drones = []
 
-for i in range(12):
     drones.append(
-        ListenDrone(
-            random.randrange(0, dronesim.SCREEN_WIDTH),
-            random.randrange(0, dronesim.SCREEN_HEIGHT),
+        SendDrone(
+            dronesim.config.SCREEN_WIDTH / 2,
+            dronesim.config.SCREEN_HEIGHT / 2,
             100
         )
     )
 
-dronesim.run(drones)
+    for i in range(12):
+        drones.append(
+            ListenDrone(
+                random.randrange(0, dronesim.config.SCREEN_WIDTH),
+                random.randrange(0, dronesim.config.SCREEN_HEIGHT),
+                100
+            )
+        )
+
+    sim = dronesim.simulation.Simulation()
+    sim.run(drones)
